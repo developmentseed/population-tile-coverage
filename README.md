@@ -5,28 +5,29 @@ These are scripts to get data from [OSM](http://download.geofabrik.de/) and [WOR
 ## Build container
 
 ```sh
-
-# Build container
-cd project-connect / && docker-compose build
-cd phase3/ml_util_data/population-tile-coverage/
-
-# Process raster file, output a JSON file
-./raster.sh \
-    rwanda \
-    ftp://ftp.worldpop.org.uk/GIS/Population/Global_2000_2020/2020/RWA/rwa_ppp_2020.tif
-
-# Process PBF fil filtering object to get a JSON file
-./osm.sh \
-    rwanda \
-    http://download.geofabrik.de/africa/rwanda-latest.osm.pbf
-
-# Process raster and OSM data to get the coverage
-./mbtiles.sh \
-    rwanda
-
+docker-compose build
 ```
 
-The output will be a shapefile zipped "rwanda_population_coverage_z16.shp.zip". Also the script could take time on processing, e.g for Sierra-Leone size country can take around 10 minutes a local machine(4 CPUs and 16 RAM).
+## Execute the script 
+
+```
+python3 index.py \
+    --country=monaco \
+    --zoom=16 \
+    --worldpop_url=https://data.worldpop.org/GIS/Population/Global_2000_2020/2020/MCO/mco_ppp_2020.tif \
+    --osm_pbf_url=http://download.geofabrik.de/europe/monaco-latest.osm.pbf
+```
+Argument:
+- country, necessary argument
+- zoom, for creating the tile coverage
+- worldpop_url, url of raster file, get from https://www.worldpop.org/geodata/listing?id=29
+- osm_pbf_url, url of pbf file, get from http://download.geofabrik.de/
+
+**Note:**
+- In case you want only the worldpop population tile coverage, pass only `worldpop_url` argument.
+- In case you want only the OpenStreetMap tile coverage, pass only `osm_pbf_url` argument.
+
+The output will be a zipped shapefile "data/monaco_population_tiles_16.zip". The script could take time on processing, e.g for Sierra-Leone size country can take around 10 minutes a local machine(4 CPUs and 16 RAM).
 
 
 ![image](https://user-images.githubusercontent.com/1152236/93103839-bb760500-f672-11ea-8850-c4f6fb79ee93.png)

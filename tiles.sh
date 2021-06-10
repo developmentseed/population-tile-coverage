@@ -8,52 +8,48 @@
 # Run:
 #     ./mbtiles.sh
 # """
-
-outputDir=data/tmp
-mkdir -p $outputDir
-geokit="docker run --rm -v ${PWD}:/mnt/data developmentseed/geokit:population"
-
 country=$1
-
-osm_data=$outputDir/../osm/${country}_osm_school.json
-raster_data=$outputDir/../population/${country}_population.json
-
-# # # # # ###########################################################################
+zoom=$2
+outputDir=${OUTPUT_DIR}/tiles
+mkdir -p $outputDir
+# ###########################################################################
 # # # # # ##### Merge OSM and Population files
 # # # # # ###########################################################################
 
-cat $osm_data $raster_data >$outputDir/${country}_osm_population.json
+cat $3 $4 >${outputDir}/tile_coverage.json
 
-# # # # # # # ###########################################################################
-# # # # # # # ##### Create Mbtiles
-# # # # # # # ###########################################################################
-$geokit tippecanoe \
-        -l osm -z16 -Z16 -fo $outputDir/${country}.mbtiles \
-        $outputDir/${country}_osm_population.json
+# # # # # # # # ###########################################################################
+# # # # # # # # ##### Create Mbtiles
+# # # # # # # # ###########################################################################
+$PTC_CONTAINER tippecanoe \
+        -l osm \
+        -z${zoom} \
+        -Z${zoom} \
+        -fo $outputDir/${country}.mbtiles \
+        ${outputDir}/tile_coverage.json
 
-# # # # ###########################################################################
-# # # # ##### Get tiles coverage
-# # # # ###########################################################################
-$geokit osmcov \
+# # # # # ###########################################################################
+# # # # # ##### Get tiles coverage
+# # # # # ###########################################################################
+$GEOKIT_CONTAINER osmcov \
         $outputDir/${country}.mbtiles \
-        --zoom=16 \
-        --types=highway,building,sport,amenity,leisure,landuse,population >$outputDir/${country}_tile.json
+        --zoom=${zoom} \
+        --types=highway,building,sport,amenity,leisure,landuse,population >$outputDir/${country}_tiles.json
 
-# # # # ###########################################################################
-# # # # ##### Row features to geojson
-# # # # ###########################################################################
-mkdir -p $outputDir/../results_z16/
+# # # # # ###########################################################################
+# # # # # ##### Row features to geojson
+# # # # # ###########################################################################
 
-cat $outputDir/${country}_tile.json | jq '{"type":"FeatureCollection","features":.}' \
-        --slurp -c >$outputDir/${country}_population_coverage_z16.geojson
+cat $outputDir/${country}_tiles.json | jq '{"type":"FeatureCollection","features":.}' \
+        --slurp -c >${OUTPUT_DIR}/${country}_population_tiles_${zoom}.geojson
 
-docker run --rm -v ${PWD}:/opt/src developmentseed/project_connect:v1 ogr2ogr \
+$PTC_CONTAINER ogr2ogr \
         -nlt POLYGON -skipfailures \
-        $outputDir/${country}_population_coverage_z16.shp \
-        $outputDir/${country}_population_coverage_z16.geojson
+        ${OUTPUT_DIR}/${country}_population_tiles_${zoom}.shp \
+        ${OUTPUT_DIR}/${country}_population_tiles_${zoom}.geojson
 
-zip -r $outputDir/../results_z16/${country}_population_coverage_z16.shp.zip \
-        $outputDir/${country}_population_coverage_z16.shx \
-        $outputDir/${country}_population_coverage_z16.prj \
-        $outputDir/${country}_population_coverage_z16.shp \
-        $outputDir/${country}_population_coverage_z16.dbf
+zip -r ${OUTPUT_DIR}/${country}_population_tiles_${zoom}.zip \
+        ${OUTPUT_DIR}/${country}_population_tiles_${zoom}.shx \
+        ${OUTPUT_DIR}/${country}_population_tiles_${zoom}.prj \
+        ${OUTPUT_DIR}/${country}_population_tiles_${zoom}.shp \
+        ${OUTPUT_DIR}/${country}_population_tiles_${zoom}.dbf
