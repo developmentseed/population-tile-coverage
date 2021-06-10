@@ -7,6 +7,7 @@ from rasterio.rio import options
 from rasterio.windows import Window
 import os
 
+
 def dims(total, chop):
     """Given a total number of pixels, chop into equal chunks.
     Last one gets truncated so that sum of sizes == total.
@@ -44,12 +45,18 @@ def translate(src, dst, col_off, row_off, width, height, dst_opts=None):
     return True
 
 
-@click.command('Split raster files in chunks, according to the number of pixels')
+@click.command("Split raster files in chunks, according to the number of pixels")
 @options.file_in_arg
 @click.option("--prefix", type=str, required=True, help="output file prefix.")
-@click.option("--width", "-w", type=int, default=5000, help="Chop width (default: 5000px)")
-@click.option("--height", "-h", type=int, default=5000, help="Chop height (default: 5000px)")
-@click.option("--blocksize", type=int, default=256, help="Overwrite profile's tile size.")
+@click.option(
+    "--width", "-w", type=int, default=5000, help="Chop width (default: 5000px)"
+)
+@click.option(
+    "--height", "-h", type=int, default=5000, help="Chop height (default: 5000px)"
+)
+@click.option(
+    "--blocksize", type=int, default=256, help="Overwrite profile's tile size."
+)
 @options.creation_options
 def main(input, prefix, width, height, blocksize, creation_options):
     """Chop an input dataset"""

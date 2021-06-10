@@ -30,7 +30,9 @@ parser.add_argument(
 args = parser.parse_args()
 pwd = os.getcwd()
 os.environ["PTC_CONTAINER"] = f"docker run --network=host -v {pwd}:/mnt devseed/ptc"
-os.environ["GEOKIT_CONTAINER"] = f"docker run --rm -v {pwd}:/mnt/data developmentseed/geokit:population"
+os.environ[
+    "GEOKIT_CONTAINER"
+] = f"docker run --rm -v {pwd}:/mnt/data developmentseed/geokit:population"
 os.environ["OGR_GEOJSON_MAX_OBJ_SIZE"] = "1000"
 output_dir = "./data"
 os.environ["OUTPUT_DIR"] = output_dir
@@ -38,9 +40,10 @@ os.environ["OUTPUT_DIR"] = output_dir
 subprocess.check_call(["mkdir", "-p", "./data/"])
 
 
-def worldpop(worldpop_url, country):
+def worldpop(worldpop_url, country, zoom):
     subprocess.check_call(
-        [f"./worldpop.sh {worldpop_url} {country}"], shell=True)
+        [f"./worldpop.sh {worldpop_url} {country} {zoom}"], shell=True
+    )
 
 
 def osm(osm_pbf_url, country):
@@ -59,8 +62,8 @@ def tiles(country, zoom):
     subprocess.check_call(" ".join(cmd), shell=True)
 
 
-if args.worldpop_url and args.country:
-    worldpop(args.worldpop_url, args.country)
+if args.worldpop_url and args.country and args.zoom:
+    worldpop(args.worldpop_url, args.country, args.zoom)
 
 if args.osm_pbf_url and args.country:
     osm(args.osm_pbf_url, args.country)
