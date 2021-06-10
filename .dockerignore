@@ -1,0 +1,5 @@
+etl/
+data/
+input/
+output/
+postgis-data

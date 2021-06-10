@@ -1,0 +1,10 @@
+version: '3'
+services:
+    ptc:
+        image: devseed/ptc
+        build:
+          context: .
+          dockerfile: Dockerfile
+        volumes:
+            - ./:/mnt
+    
