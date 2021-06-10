@@ -16,4 +16,5 @@ RUN pip install rio_cogeo
 RUN pip install rio_tiler
 RUN pip install fire
 RUN pip install unrasterize
+RUN pip install mercantile
 WORKDIR /mnt
