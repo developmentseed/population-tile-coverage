@@ -2,6 +2,12 @@
 
 These are scripts to get data from [OSM](http://download.geofabrik.de/) and [WORLDPOP](https://www.worldpop.org/project/categories?id=3) and cobined them, in order to get the Tile coverage for population
 
+# Dependecies
+
+```
+apt-get -y install jq wget zip
+```
+
 ## Build container
 
 ```sh
